@@ -78,18 +78,19 @@ func baseReference(repo *git.Repository, directory string, baseBranch string) (*
 	return baseRef, nil
 }
 
-// CompareBranch lists the commits ahead and behind of a targetBranch compared to a baseBranch
-func CompareBranch(repo *git.Repository, baseBranch string, branch string, directory string) ([]*object.Commit, []*object.Commit, error) {
-	var behind []*object.Commit
-	var ahead []*object.Commit
-
+// CompareBranch lists the commits ahead and behind of a targetBranch compared
+// to a baseBranch.
+func CompareBranch(repo *git.Repository, baseBranch, branch, directory string) ([]*object.Commit, []*object.Commit, error) {
 	commonAncestor, err := mergeBase(baseBranch, branch, directory)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "executing merge-base")
+	}
 
-	ahead, err = commitsAhead(repo, branch, commonAncestor)
+	ahead, err := commitsAhead(repo, branch, commonAncestor)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "comparing branches")
 	}
-	behind, err = commitsAhead(repo, baseBranch, commonAncestor)
+	behind, err := commitsAhead(repo, baseBranch, commonAncestor)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "comparing branches")
 	}
