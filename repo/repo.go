@@ -99,9 +99,7 @@ func CompareBranch(repo *git.Repository, baseBranch, branch, directory string) (
 }
 
 func commitsAhead(repo *git.Repository, branch string, commonAncestor string) ([]*object.Commit, error) {
-	var ahead []*object.Commit
-	var reference string
-	reference = fmt.Sprintf("refs/remotes/origin/%s", branch)
+	reference := fmt.Sprintf("refs/remotes/origin/%s", branch)
 	ref, err := repo.Reference(plumbing.ReferenceName(reference), true)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("loading reference %s", reference))
@@ -113,6 +111,7 @@ func commitsAhead(repo *git.Repository, branch string, commonAncestor string) ([
 	}
 	defer cIter.Close()
 
+	var ahead []*object.Commit
 	for {
 		commit, err := cIter.Next()
 		if err != nil {
