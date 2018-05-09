@@ -6,11 +6,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// var releaseTag string
+var compareBranch string
+var title string
+var description string
 
 func init() {
 	rootCmd.AddCommand(prCmd)
-	// prCmd.Flags().StringVar(&releaseTag, "releaseTag", "", "Tag for the release. If empty, curent date in YYYY.MM.DD will be used")
+	prCmd.Flags().StringVar(&compareBranch, "compare", "", "The branch to compare with base branch.")
+	prCmd.Flags().StringVar(&title, "title", "", "The title of the PR.")
+	prCmd.Flags().StringVar(&description, "description", "", "The description of the PR.")
+	prCmd.MarkFlagRequired("title")
 }
 
 var prCmd = &cobra.Command{
@@ -23,15 +28,18 @@ var prCmd = &cobra.Command{
 }
 
 func createPR() {
-	compareBranch, err := gitRepo.CurrentBranch()
+	if compareBranch != "" {
+		var err error
+		compareBranch, err = gitRepo.CurrentBranch()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	pr, err := gc.CreatePR(baseBranch, compareBranch, title, description)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	pr, err := gc.CreatePR(baseBranch, compareBranch)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(pr)
+	fmt.Printf("Created PR %s\n", *pr.HTMLURL)
 }

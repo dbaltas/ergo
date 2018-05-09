@@ -72,19 +72,18 @@ func (gc *Client) EditRelease(release *github.RepositoryRelease) (*github.Reposi
 }
 
 // CreatePR creates a pull request
-func (gc *Client) CreatePR(baseBranch, compareBranch string) (*github.PullRequest, error) {
-	title := "pr title"
-	head := compareBranch
-	body := "no body"
-
+func (gc *Client) CreatePR(baseBranch, compareBranch, title, body string) (*github.PullRequest, error) {
 	pull := &github.NewPullRequest{
 		Title: &title,
-		Head:  &head,
+		Head:  &compareBranch,
 		Base:  &baseBranch,
 		Body:  &body,
 	}
 
 	pr, _, err := gc.client.PullRequests.Create(gc.ctx, gc.organization, gc.repo, pull)
+	if err != nil {
+		return nil, err
+	}
 
 	return pr, err
 }
