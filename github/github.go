@@ -71,6 +71,24 @@ func (gc *Client) EditRelease(release *github.RepositoryRelease) (*github.Reposi
 	return release, err
 }
 
+// CreatePR creates a pull request
+func (gc *Client) CreatePR(baseBranch, compareBranch string) (*github.PullRequest, error) {
+	title := "pr title"
+	head := compareBranch
+	body := "no body"
+
+	pull := &github.NewPullRequest{
+		Title: &title,
+		Head:  &head,
+		Base:  &baseBranch,
+		Body:  &body,
+	}
+
+	pr, _, err := gc.client.PullRequests.Create(gc.ctx, gc.organization, gc.repo, pull)
+
+	return pr, err
+}
+
 // ReleaseBody output needed for github release body.
 func ReleaseBody(commitDiffBranches []repo.DiffCommitBranch, releaseBodyPrefix string, branchMap map[string]string) string {
 	var formattedCommits []string
