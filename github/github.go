@@ -88,6 +88,17 @@ func (gc *Client) CreatePR(baseBranch, compareBranch, title, body string) (*gith
 	return pr, nil
 }
 
+// GetPR gets a pull request
+func (gc *Client) GetPR(number int) (*github.PullRequest, error) {
+	pr, _, err := gc.client.PullRequests.Get(gc.ctx, gc.organization, gc.repo, number)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return pr, nil
+}
+
 // ListPRs creates a pull request
 func (gc *Client) ListPRs() ([]*github.PullRequest, error) {
 	opt := &github.PullRequestListOptions{
@@ -95,8 +106,6 @@ func (gc *Client) ListPRs() ([]*github.PullRequest, error) {
 		Direction: "desc",
 	}
 
-	// pr, _, err := gc.client.PullRequests.Get(gc.ctx, gc.organization, gc.repo, 1)
-	// fmt.Print(pr)
 	pulls, _, err := gc.client.PullRequests.List(gc.ctx, gc.organization, gc.repo, opt)
 
 	if err != nil {
