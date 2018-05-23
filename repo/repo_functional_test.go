@@ -5,56 +5,50 @@ import (
 	"testing"
 
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
-
-	git "gopkg.in/src-d/go-git.v4"
 )
 
 func TestRepo(t *testing.T) {
-	directory := "/tmp/ergo-functional-test-repo"
-	repoURL := "https://github.com/dbaltas/ergo-functional-test-repo.git"
-	skipFetch := true
-	var repoFromClone, repoFromSecondClone, repoFromPath *git.Repository
 	var err error
 	var ahead, behind []*object.Commit
 
+	path := "/tmp/ergo-functional-test-repo"
+	repoURL := "https://github.com/dbaltas/ergo-functional-test-repo.git"
+
+	// r := New(repoURL, path, "origin")
 	// cleanup after test run
 	defer func() {
-		os.RemoveAll(directory)
+		err := os.RemoveAll(path)
 
 		if err != nil {
-			t.Errorf("error cleaning up %s: %v", directory, err)
-			return
+			t.Fatalf("error cleaning up %s: %v", path, err)
 		}
 	}()
 
-	t.Run("Clone", func(t *testing.T) {
-		repoFromClone, err = LoadOrClone(repoURL, directory, "origin", skipFetch)
-		if err != nil || repoFromClone == nil {
-			t.Errorf("Error cloning repo:%v\n", err)
-			return
-		}
-	})
+	r, err := NewClone(repoURL, path, "origin")
+
+	if err != nil || r == nil {
+		t.Fatalf("Error cloning repo:%v\n", err)
+	}
 
 	t.Run("Clone already cloned", func(t *testing.T) {
-		repoFromSecondClone, err = LoadOrClone(repoURL, directory, "origin", skipFetch)
-		if repoFromSecondClone != nil {
+		_, err = NewClone(repoURL, path, "origin")
+
+		if err == nil {
 			t.Errorf("Expected 'repository already exists' error")
-			return
 		}
 	})
 
 	t.Run("Load from disk already cloned", func(t *testing.T) {
-		repoFromPath, err = LoadOrClone("", directory, "origin", skipFetch)
-		if err != nil || repoFromPath == nil {
+		r2, err := NewFromPath(path, "origin")
+		if err != nil || r2 == nil {
 			t.Errorf("error loading repo from path: %v", err)
-			return
 		}
 	})
 
 	t.Run("Compare Branch", func(t *testing.T) {
 		targetBranch := "ft-master"
 		baseBranch := "ft-develop"
-		ahead, behind, err = CompareBranch(repoFromPath, baseBranch, targetBranch, directory)
+		ahead, behind, err = r.CompareBranch(baseBranch, targetBranch)
 		if err != nil {
 			t.Errorf("error comparing branches %s %s: %v", baseBranch, targetBranch, err)
 			return
@@ -74,7 +68,6 @@ func TestRepo(t *testing.T) {
 
 		if commitMessage != "feature-b" {
 			t.Errorf("expected:%s, got:%s", "feature-b", commitMessage)
-			return
 		}
 	})
 }
