@@ -37,17 +37,21 @@ var rootCmd = &cobra.Command{
 	Long: `Ergo helps to
 * compare multiple branches
 * push to multiple branches with time interval (useful for multiple release environments)
-Also it minimizing the browser interaction with github
-* handles pull requests
-* drafts a release
-* updates release notes
+* minimize the browser interaction with github:
+	* create/show a pull request
+	* list open pull requests
+	* add reviewers to a pull request
+	* draft a release
+	* update release notes
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Hola! type `ergo help`")
 	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		var err error
+		// commands not requiring a repo
 		noRepoCmds := make(map[string]bool)
+		// commands not requiring to fetch from a repo
 		skipFetchCmds := make(map[string]bool)
 
 		noRepoCmds["help"] = true

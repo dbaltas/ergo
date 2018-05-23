@@ -29,11 +29,18 @@ func init() {
 
 var prCmd = &cobra.Command{
 	Use:   "pr",
-	Short: "Create a pull request [github]",
-	Long:  `Create a pull request on github from compare branch to base branch`,
-	Args:  cobra.MaximumNArgs(1),
+	Short: "Create or show a pull request [github]",
+	Long: `Create a pull request on github from compare branch to base branch
+	ergo pr --title "my new pull request --reviewers pespantelis,nstratos,mantzas"
+Show details of a pr by pr number
+	ergo pr 18
+Add reviewers to an existing pr
+	ergo pr 18 --reviewers pespantelis,nstratos,mantzas"
+	`,
+	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
+		// show a PR by number
 		if len(args) > 0 {
 			number, err = strconv.Atoi(args[0])
 			if err != nil {
@@ -46,11 +53,10 @@ var prCmd = &cobra.Command{
 			}
 
 			if reviewers != "" || teamReviewers != "" {
-				pr, err := gc.RequestReviewersForPR(number, reviewers, teamReviewers)
+				_, err = gc.RequestReviewersForPR(number, reviewers, teamReviewers)
 				if err != nil {
-					fmt.Println(pr)
+					return err
 				}
-				return err
 			}
 
 			return nil
@@ -96,11 +102,10 @@ func createPR() error {
 	fmt.Printf("Created PR %s\n", *pr.HTMLURL)
 
 	if reviewers != "" || teamReviewers != "" {
-		pr, err := gc.RequestReviewersForPR(pr.GetNumber(), reviewers, teamReviewers)
+		_, err = gc.RequestReviewersForPR(pr.GetNumber(), reviewers, teamReviewers)
 		if err != nil {
-			fmt.Println(pr)
+			return err
 		}
-		return err
 	}
 
 	return nil
