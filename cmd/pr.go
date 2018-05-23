@@ -15,11 +15,15 @@ var compareBranch string
 var title string
 var description string
 var number int
+var reviewers string
+var teamReviewers string
 
 func init() {
 	rootCmd.AddCommand(prCmd)
 	prCmd.Flags().StringVar(&compareBranch, "compare", "", "The branch to compare with base branch. Defaults to current local branch.")
 	prCmd.Flags().StringVar(&title, "title", "", "The title of the PR.")
+	prCmd.Flags().StringVar(&reviewers, "reviewers", "", "Add reviewers.")
+	prCmd.Flags().StringVar(&teamReviewers, "teamReviewers", "", "Add a team as reviewers.")
 	prCmd.Flags().StringVar(&description, "description", "", "The description of the PR.")
 	// prCmd.MarkFlagRequired("title")
 }
@@ -30,6 +34,13 @@ var prCmd = &cobra.Command{
 	Long:  `Create a pull request on github from compare branch to base branch`,
 	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if reviewers != "" || teamReviewers != "" {
+			pr, err := gc.AddReviewerToPR(2173, reviewers, teamReviewers)
+			if err != nil {
+				fmt.Println(pr)
+			}
+			return err
+		}
 		var err error
 		if len(args) > 0 {
 			number, err = strconv.Atoi(args[0])
