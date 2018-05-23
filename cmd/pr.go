@@ -15,11 +15,15 @@ var compareBranch string
 var title string
 var description string
 var number int
+var reviewers string
+var teamReviewers string
 
 func init() {
 	rootCmd.AddCommand(prCmd)
 	prCmd.Flags().StringVar(&compareBranch, "compare", "", "The branch to compare with base branch. Defaults to current local branch.")
 	prCmd.Flags().StringVar(&title, "title", "", "The title of the PR.")
+	prCmd.Flags().StringVar(&reviewers, "reviewers", "", "Add reviewers.")
+	prCmd.Flags().StringVar(&teamReviewers, "teamReviewers", "", "Add a team as reviewers.")
 	prCmd.Flags().StringVar(&description, "description", "", "The description of the PR.")
 	// prCmd.MarkFlagRequired("title")
 }
@@ -77,6 +81,14 @@ func createPR() error {
 	}
 
 	fmt.Printf("Created PR %s\n", *pr.HTMLURL)
+
+	if reviewers != "" || teamReviewers != "" {
+		pr, err := gc.RequestReviewersForPR(pr.GetNumber(), reviewers, teamReviewers)
+		if err != nil {
+			fmt.Println(pr)
+		}
+		return err
+	}
 
 	return nil
 }

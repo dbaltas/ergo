@@ -99,6 +99,22 @@ func (gc *Client) GetPR(number int) (*github.PullRequest, error) {
 	return pr, nil
 }
 
+// RequestReviewersForPR assigns reviewers to a pull request
+func (gc *Client) RequestReviewersForPR(number int, reviewers, teamReviewers string) (*github.PullRequest, error) {
+	payload := github.ReviewersRequest{
+		Reviewers:     strings.Split(reviewers, ","),
+		TeamReviewers: strings.Split(teamReviewers, ","),
+	}
+	fmt.Println(github.Stringify(payload))
+	pr, resp, err := gc.client.PullRequests.RequestReviewers(gc.ctx, gc.organization, gc.repo, number, payload)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return pr, nil
+}
+
 // ListPRs creates a pull request
 func (gc *Client) ListPRs() ([]*github.PullRequest, error) {
 	opt := &github.PullRequestListOptions{
