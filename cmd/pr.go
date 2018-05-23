@@ -39,7 +39,21 @@ var prCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			return getPR(number)
+			err := getPR(number)
+
+			if err != nil {
+				return err
+			}
+
+			if reviewers != "" || teamReviewers != "" {
+				pr, err := gc.RequestReviewersForPR(number, reviewers, teamReviewers)
+				if err != nil {
+					fmt.Println(pr)
+				}
+				return err
+			}
+
+			return nil
 		}
 
 		return createPR()

@@ -106,7 +106,7 @@ func (gc *Client) RequestReviewersForPR(number int, reviewers, teamReviewers str
 		TeamReviewers: strings.Split(teamReviewers, ","),
 	}
 	fmt.Println(github.Stringify(payload))
-	pr, resp, err := gc.client.PullRequests.RequestReviewers(gc.ctx, gc.organization, gc.repo, number, payload)
+	pr, _, err := gc.client.PullRequests.RequestReviewers(gc.ctx, gc.organization, gc.repo, number, payload)
 
 	if err != nil {
 		return nil, err
