@@ -25,7 +25,6 @@ func init() {
 	prCmd.Flags().StringVar(&reviewers, "reviewers", "", "Add reviewers.")
 	prCmd.Flags().StringVar(&teamReviewers, "teamReviewers", "", "Add a team as reviewers.")
 	prCmd.Flags().StringVar(&description, "description", "", "The description of the PR.")
-	// prCmd.MarkFlagRequired("title")
 }
 
 var prCmd = &cobra.Command{
