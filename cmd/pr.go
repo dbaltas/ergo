@@ -93,26 +93,26 @@ func getPR(number int) error {
 		return err
 	}
 
-	yellow.Printf("into:%s from:%s\n", pr.Base.GetLabel(), pr.Head.GetLabel())
+	fmt.Println()
 	green.Printf("#%d: %s\n", pr.GetNumber(), pr.GetTitle())
+	fmt.Printf("into:%s from:%s\n", yellow.Sprint(pr.Base.GetLabel()), yellow.Sprint(pr.Head.GetLabel()))
 	if pr.GetBody() != "" {
 		yellow.Println(pr.GetBody())
 	}
+	fmt.Println()
+
+	fmt.Printf("%s: %d\n", yellow.Sprint("# Commits"), pr.GetCommits())
+	fmt.Printf("%s:%s, %s:%s, %s:%s\n",
+		yellow.Sprint("created"), pr.GetCreatedAt().Format("2006-01-02 15:04"),
+		yellow.Sprint("modified"), pr.GetUpdatedAt().Format("2006-01-02 15:04"),
+		yellow.Sprint("merged"), pr.GetMergedAt().Format("2006-01-02 15:04"),
+	)
+	fmt.Println()
 
 	a := green.Sprintf("%d", pr.GetAdditions())
 	d := red.Sprintf("%d", pr.GetDeletions())
 	c := yellow.Sprintf("%d", pr.GetChangedFiles())
-	// var userNames []string
-	// for _, usr := range pr. {
-	// 	userNames = append(userNames, usr.GetLogin())
-	// }
-	// fmt.Printf("Reviewers: %s\n", strings.Join(userNames, ", "))
-	fmt.Println(pr.GetReviewCommentsURL())
-	fmt.Println(pr.GetCommits())
-	fmt.Println(pr.GetCreatedAt())
-	fmt.Println(pr.GetUpdatedAt())
-	fmt.Println(pr.GetReviewCommentsURL())
-	fmt.Println(pr.GetReviewCommentsURL())
-	fmt.Printf("%s files changed, %s additions, %s deletions, %s comments\n", c, a, d, pr.GetComments())
+	fmt.Printf("%s files changed, %s additions, %s deletions\n", c, a, d)
+
 	return nil
 }
