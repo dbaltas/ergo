@@ -88,6 +88,79 @@ func (gc *Client) CreatePR(baseBranch, compareBranch, title, body string) (*gith
 	return pr, nil
 }
 
+// GetPR gets a pull request
+func (gc *Client) GetPR(number int) (*github.PullRequest, error) {
+	pr, _, err := gc.client.PullRequests.Get(gc.ctx, gc.organization, gc.repo, number)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return pr, nil
+}
+
+// NewPullRequestReviewerPayload represents a new pull request reviewer to be created.
+type NewPullRequestReviewerPayload struct {
+	Reviewers     []*string `json:"reviewers,omitempty"`
+	TeamReviewers []*string `json:"team_reviewers,omitempty"`
+}
+
+// AddReviewerToPR assigns a reviewer to a pull request
+func (gc *Client) AddReviewerToPR(number int, reviewers, teamReviewers string) (*github.PullRequest, error) {
+	a := strings.Split(reviewers, ",")
+	b := strings.Split(teamReviewers, ",")
+	pReviewers := make([]*string, len(a))
+	pTeamReviewers := make([]*string, len(b))
+
+	for i := range a {
+		pReviewers[i] = &a[i]
+	}
+	for i := range b {
+		pTeamReviewers[i] = &b[i]
+	}
+
+	payload := &NewPullRequestReviewerPayload{
+		Reviewers:     pReviewers,
+		TeamReviewers: pTeamReviewers,
+	}
+	fmt.Println(github.Stringify(payload))
+	pr, resp, err := gc.addReviewer(gc.ctx, gc.organization, gc.repo, number, payload)
+
+	fmt.Println(err)
+	fmt.Println(resp)
+	// fmt.Println(github.Stringify(pr))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return pr, nil
+}
+
+func (gc *Client) addReviewer(ctx context.Context, owner string, repo string, number int, payload *NewPullRequestReviewerPayload) (*github.PullRequest, *github.Response, error) {
+	u := fmt.Sprintf("repos/%v/%v/pulls/%d/requested_reviewers", owner, repo, number)
+	req, err := gc.client.NewRequest("POST", u, payload)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// TODO: remove custom Accept header when this API fully launches.
+	acceptHeaders := []string{mediaTypeLabelDescriptionSearchPreview}
+	// acceptHeaders := []string{mediaTypeGraphQLNodeIDPreview, mediaTypeLabelDescriptionSearchPreview}
+	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
+
+	p := new(github.PullRequest)
+	resp, err := gc.client.Do(ctx, req, p)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return p, resp, nil
+}
+
+const mediaTypeGraphQLNodeIDPreview = "application/vnd.github.jean-grey-preview+json"
+const mediaTypeLabelDescriptionSearchPreview = "application/vnd.github.symmetra-preview+json"
+
 // ListPRs creates a pull request
 func (gc *Client) ListPRs() ([]*github.PullRequest, error) {
 	opt := &github.PullRequestListOptions{
@@ -95,8 +168,6 @@ func (gc *Client) ListPRs() ([]*github.PullRequest, error) {
 		Direction: "desc",
 	}
 
-	// pr, _, err := gc.client.PullRequests.Get(gc.ctx, gc.organization, gc.repo, 1)
-	// fmt.Print(pr)
 	pulls, _, err := gc.client.PullRequests.List(gc.ctx, gc.organization, gc.repo, opt)
 
 	if err != nil {

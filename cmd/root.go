@@ -47,13 +47,20 @@ Also it minimizing the browser interaction with github
 	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		var err error
-
 		noRepoCmds := make(map[string]bool)
+		skipFetchCmds := make(map[string]bool)
+
 		noRepoCmds["help"] = true
 		noRepoCmds["version"] = true
+		skipFetchCmds["pr"] = true
+		skipFetchCmds["prs"] = true
 
 		if _, ok := noRepoCmds[cmd.Name()]; ok {
 			return nil
+		}
+
+		if _, ok := skipFetchCmds[cmd.Name()]; ok {
+			skipFetch = true
 		}
 
 		err = initializeRepo()
