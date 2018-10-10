@@ -146,7 +146,7 @@ func deployBranches(branchMap map[string]string, suffixFind, suffixReplace strin
 			newBody := strings.Replace(*(release.Body), findText, replaceText, -1)
 			fmt.Println(newBody)
 			release.Body = &newBody
-			release, err = gc.EditRelease(release)
+			_, err = gc.EditRelease(release)
 			if err != nil {
 				return err
 			}

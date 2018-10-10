@@ -91,7 +91,6 @@ func (gc *Client) CreatePR(baseBranch, compareBranch, title, body string) (*gith
 // GetPR gets a pull request
 func (gc *Client) GetPR(number int) (*github.PullRequest, error) {
 	pr, _, err := gc.client.PullRequests.Get(gc.ctx, gc.organization, gc.repo, number)
-
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +106,6 @@ func (gc *Client) RequestReviewersForPR(number int, reviewers, teamReviewers str
 	}
 	fmt.Println(github.Stringify(payload))
 	pr, _, err := gc.client.PullRequests.RequestReviewers(gc.ctx, gc.organization, gc.repo, number, payload)
-
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +121,6 @@ func (gc *Client) ListPRs() ([]*github.PullRequest, error) {
 	}
 
 	pulls, _, err := gc.client.PullRequests.List(gc.ctx, gc.organization, gc.repo, opt)
-
 	if err != nil {
 		return nil, err
 	}

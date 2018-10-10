@@ -39,15 +39,13 @@ Add reviewers to an existing pr
 	`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		var err error
 		// show a PR by number
 		if len(args) > 0 {
-			number, err = strconv.Atoi(args[0])
+			number, err := strconv.Atoi(args[0])
 			if err != nil {
 				return err
 			}
-			err := getPR(number)
-
+			err = getPR(number)
 			if err != nil {
 				return err
 			}
@@ -94,7 +92,6 @@ func createPR() error {
 	}
 
 	pr, err := gc.CreatePR(baseBranch, compareBranch, title, description)
-
 	if err != nil {
 		return err
 	}
@@ -117,11 +114,10 @@ func getPR(number int) error {
 	red := color.New(color.FgRed)
 
 	prp, err := gc.GetPR(number)
-	pr := *prp
-
 	if err != nil {
 		return err
 	}
+	pr := *prp
 
 	fmt.Println()
 	green.Printf("#%d: %s\n", pr.GetNumber(), pr.GetTitle())

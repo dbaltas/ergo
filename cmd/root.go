@@ -117,7 +117,6 @@ func initializeRepo() error {
 	} else {
 		r, err = repo.NewFromPath(path, viper.GetString("generic.remote"))
 	}
-
 	if err != nil {
 		return fmt.Errorf("load repo:%s", err)
 	}
